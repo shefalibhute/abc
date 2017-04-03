@@ -1,0 +1,118 @@
+que1)Write a PL/SQL block that takes a department number from a user and increases the salary of all the employees belonging to the department by 10%. The block should display on the screen how many records are updated.
+
+declare
+v_deptid number:=&deptid;
+cursor c_dept is select ename,sal+sal*0.1 inc_sal,sal,deptno from emp where deptno=v_deptid;   
+v_dept c_dept%rowtype;
+rowcount1 number;
+begin
+open c_dept;
+dbms_output.put_line('dept selected is ' ||v_deptid);
+loop
+fetch c_dept into v_dept;
+exit when c_dept%notfound;     
+dbms_output.put_line('ename= '||v_dept.ename||' deptno= '||v_dept.deptno||' salary= '||v_dept.sal||' salary= '||v_dept.inc_sal);
+rowcount1:=c_dept%rowcount;
+end loop;
+dbms_output.put_line('no. of rows updated '||rowcount1);
+close c_dept;
+end;
+/
+Enter value for deptid: 10
+dept selected is 10
+ename=KING deptno=10 salary=5500
+ename=CLARK deptno=10 salary=2695
+ename=MILLER deptno=10 salary=1430
+no. of rows updated 3
+
+
+
+que2)Write a PL/SQL block to display the employee first name, salary and JOB_TITLE for the first five employees recorded in the “employees” table by making use of :
+•Simple for loop with “EXIT WHEN” condition
+•The “WHILE” condition
+•Cursor FOR LOOP 
+3.
+declare
+cursor c_emp is select * from emp;
+v_emp c_emp%rowtype;
+begin
+open c_emp;
+for i in 1..5
+loop
+fetch c_emp into v_emp;
+dbms_output.put_line('name '||v_emp.ename||' salary '||v_emp.sal||' job title '||v_emp.job);
+end loop;close c_emp;
+end;
+/
+
+2.
+
+declare
+cursor c_emp is select * from emp;
+v_emp c_emp%rowtype;
+i number:=1;
+begin
+open c_emp;
+while(i<=5)
+loop
+fetch c_emp into v_emp;
+dbms_output.put_line('name '||v_emp.ename||' salary '||v_emp.sal||' job title '||v_emp.job);
+i:=i+1;
+end loop;
+close c_emp;
+end;
+/
+
+1.
+declare
+cursor c_emp is select * from emp;
+v_emp c_emp%rowtype;
+i number:=1;
+begin
+open c_emp;
+while(i<=5)
+loop
+fetch c_emp into v_emp;
+dbms_output.put_line('name '||v_emp.ename||' salary '||v_emp.sal||' job title '||v_emp.job);
+i:=i+1;
+end loop;
+close c_emp;
+end;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
