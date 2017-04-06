@@ -154,11 +154,83 @@ ENAME         EMPNO        SAL
 JAMES            7900             1379.4
 SCOTT            7788             3993
 
-que5)
+que5)Write a PLSQL block which takes Movie booking details as input from the user and inserts a record in the booking table after doing the following validation
+oBook_id should be unique
+oWant to book for today 
+oPerson_booked is the user itself
+otheartre_id, movie_id, show_id should be valid
+oNo_of_tickets are 2
+
+Raise a user defined exception for each of the above validations, display appropriate error message and terminate the program
+BOOK_ID        
+BOOKING_DATE   
+PERSON_BOOKED  
+THEARTRE_ID    
+MOVIE_ID       
+SHOW_ID        
+NO_OF_TICKETS  
+b number:=&bid;
+bd date:=&bdate;
+t number:=&tid;
+m number:=&mid;
+s number:=&sid;
+
 declare
-mn varchar2(20):='&name';
-mid number:=&movieid;
-bid number:=&bookid;
+ 	bk booking.book_id%type;
+ 	ct number;
+ 	not_unique_id exception;
+
+ 	dt booking.booking_date%type;
+ 	invalid_date exception;
+
+ 	name varchar2(30);
+ 	t booking.theatre_id%type;
+ 	tid number;
+ 	invalid_theatre exception;
+
+ 	m booking.movie_id%type;
+ 	mid number;
+ 	invalid_movie exception;
+
+ 	s booking.show_id%type;
+ 	sid number;
+ 	invalid_show exception;
+
+ 	tickets number;
+ 	more_tickets exception;
+
+begin
+	bk:=&bookingno;
+	select count(*) into ct from booking where book_id=bk;
+	if ct>0 then
+		raise not_unique_id;
+	end if;
+
+	dt:=to_date('&date','DD-MM-YYYY');
+	dbms_output.put_line(dt);
+	select sysdate into sysdt from dual;
+	dbms_output.put_line(sysdt);
+	if(trunc(dt)!=trunc(sysdt)) then
+		raise invalid_date;
+	end if;
+
+	name:=&booking_name;
+
+	t:='&theatre_id';
+	select count(theatre_id) into tid from theatre where theatre_id=t;
+	if tid !=1 then
+		raise invalid_theatre;
+	end if;
+
+	m:='&movie_id';
+	select count(movie_id) into mid from movie_details where movie_id=m;
+
+	
+
+
+ 
+
+begin
 
 
 
