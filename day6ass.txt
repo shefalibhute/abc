@@ -1,0 +1,199 @@
+Create a user defined data type named “MARKS_TYPE” having the following subfields
+
+Column	Data type and size
+Subject	VARCHAR 2 (25)
+midTermMarks	NUMBER (3)
+annualMarks	NUMBER(3)
+
+
+Create an object table with name “MYMARKS” having a single column of type MARKS_TYPE.
+Insert any 3 records in the table with relevant data
+Fire an appropriate SELECT command to get midTermMarks and annualMarks for all records for the given subject
+
+------------------------------------------------------------------------------
+
+create or replace type  marks_type as object
+(subject varchar2(25),
+midtermmarks number(3),
+annualmarks number(3));
+
+create table mymarks(name varchar2(20),rollno number(3) ,term marks_type);
+
+insert into mymarks values('abc',123,marks_type('phy',57,66));
+insert into mymarks values('cde',234,marks_type('chem',66,77));
+insert into mymarks values('fgh',678,marks_type('bio',77,88));
+
+select * from mymarks;
+
+select m.term.midtermmarks,m.term.annualmarks from mymarks m  where m.term.subject='phy';
+
+
+
+==================================================
+2)
+
+Create table “students” having the following design
+
+Column	Data type and size	Constraint
+studentName	VARCHAR 2 (25)	
+rollNo	NUMBER (3)	Primary Key
+Score	MARKS_TYPE	
+
+Insert any 3 relevant records in the table.
+Fire an appropriate SELECT query to get the score of a student with the given rollNO
+Fire an appropriate command to increase the annualMarks of the student with given rollNo by five marks
+
+create table students(studentname varchar2(25),rollno number(3) primary key,score marks_type);
+
+insert into students values('shefu',13,marks_type('bio',66,77));
+insert into students values('simran',14,marks_type('chem',77,88));
+
+select * from students;
+
+1)
+select s.score.midtermmarks,s.score.annualmarks from students s where rollno=13;
+
+2)
+update students s  set s.score.annualmarks=s.score.annualmarks+5 where rollno=13;
+
+----------------------------------------------------------------------------------------
+
+3)
+
+create or replace type icecream_type as object 
+(flovorNo number(2),
+fname varchar(10),
+cost number(3),
+hastopping char(1));
+
+create table menu(menuno number(2) primary key,maincourse varchar2(15) not null,desert icecream_type,colddrink char(6));
+
+insert into menu values(11,'vanilla',icecream_type(12,'abc',40,'y'),'ddd');
+
+insert into menu values(12,'strawberry',icecream_type(13,'cde',50,'n'),'eee');
+
+insert into menu values(13,'butterscotch',icecream_type(14,'fgh',60,'y'),'ggg');
+
+
+select i.desert.cost,i.desert.fname from menu i where i.desert.flovorNo=12;
+
+update menu m set m.desert.cost=65,maincourse='cake' where menuno=11;
+
+-------------------------------------------------------------------------------------------
+collections
+2)
+create or replace type cust_tab as object
+(cust_id number,
+cust_name varchar2(20),
+plan_name varchar2(20));
+
+create type cust_details as varray(5) of cust_tab;
+
+create table cust_tab1(srno number(10) primary key,cust_info cust_details,cust_number number(10));
+
+insert into cust_tab1 values(11,cust_details(cust_tab(1,'aaa','ddd')),123);
+
+insert into cust_tab1 values(22,cust_details(cust_tab(2,'bbb','eee')),456);
+
+declare
+var cust_details;
+cursor c1 is select * from cust_tab1;
+begin
+for y in c1
+loop
+select cust_info into var from cust_tab1 where srno=y.srno;
+for x in 1..var.count
+loop
+dbms_output.put_line('cust id ='||var(x).cust_id||'cust  name'||var(x).cust_name||'plan name'||var(x).plan_name);
+end loop;
+end loop;
+end;
+
+
+
+
+4)
+create or replace type vehicle_type as object
+(vehicle_no varchar2(12),
+vehicle_type char(1),
+monthly_expense number(7));
+
+create type vehicle1_arr as varray(3) of vehicle_type;
+
+create table emp_varray(empno number primary key,emp_name varchar2(30),vehicleList vehicle1_arr);
+
+insert into emp_varray values(111,'shefu',vehicle1_arr(vehicle_type('mhabcd','T',3000)));
+
+insert into emp_varray values(122,'poo',vehicle1_arr(vehicle_type('mhavvd','F',6000)));
+
+
+create or replace procedure add_vehicle_details as
+v_det emp_varray.vehicleList%type;
+begin
+select vehicleList.vehicle1_arr into v_det from emp_varray where empno=111;
+dbms_output.put_line('vehicle details are= '||v_det);
+exception
+when no_data_found then
+dbms_output.put_line('no vehicle id found');
+end;
+
+
+5)
+create or replace type paper_obj as object
+(paperid number,
+papername varchar2(20),
+publishDate date);
+
+create type paper_details as varray(5) of paper_obj;
+
+create table author_tab(authorid number(10) primary key,authorname varchar2(20),papers paper_details);
+
+insert into author_tab values(111,'xyz',paper_details(paper_obj(333,'toi','22-apr-2014')));
+
+insert into author_tab values(222,'acd',paper_details(paper_obj(444,'bbc','10-may-2016')));
+
+----------------------------------------------------------------------------------------------
+6)
+
+create or replace type increment_type as object
+(incr_id number(3),
+incr_date date,
+incr_amt  number(7));
+
+create or replace type skills_type as object(skill_id number(3),skill_name varchar2(20));
+
+create table emp_detail(emp_no number(4),emp_name char(30),emp_skills skills_type,emp_incr increment_type);
+
+insert into emp_detail values(111,'abc',skills_type(111,'c'),increment_type(222,'21-apr-2016',120));
+
+insert into emp_detail values(222,'pqr',skills_type(222,'c++'),increment_type(333,'10-may-2016',150));
+
+create or replace procedure display_details as
+v_empno emp_detail.emp_no%type;
+v_empname emp_detail.emp_name%type;
+v_skills_id emp_detail.emp_skills.skill_id%type;
+v_skills_name emp_detail.emp_skills.skill_name%type;
+v_incrid emp_detail.emp_incr.incr_id%type;
+v_incrdate emp_detail.emp_incr.incr_date%type;
+v_incramt emp_detail.emp_incr.incr_amt%type;
+begin
+select emp_no,emp_name into v_empno,v_empname from emp_detail where emp_no=222;
+dbms_output.put_line('Employee number :'||v_empno||'Employee name:'||v_empname);
+dbms_output.put_line('skills set');
+select s.emp_skills.skill_id,s.emp_skills.skill_name into v_skills_id,v_skills_name from emp_detail s where emp_no=111;
+dbms_output.put_line('skill id is'||v_skills_id||'skills name is'||v_skills_name);
+select s.emp_incr.incr_id,s.emp_incr.incr_date,s.emp_incr.incr_amt into v_incrid,v_incrdate,v_incramt from emp_detail s where emp_no=111;
+dbms_output.put_line('employee id is'||v_incrid||'employee date is'||v_incrdate||'employee amt is'||v_incramt);
+exception
+when no_data_found then
+dbms_output.put_line('no data found');
+end;
+/
+
+
+
+
+
+
+
+

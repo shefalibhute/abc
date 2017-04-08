@@ -1,0 +1,137 @@
+ORDBMS
+----------------------------------------
+create or replace type emp_Address as object
+(street varchar2(20),
+city varchar2(20),
+country varchar2(20));
+
+
+create table Person(pid number,pname varchar2(20),address emp_address);
+
+insert into Person values(1,'Priti',emp_address('hinjewadi','pune','India'));
+
+insert into Person values(2,'riti',emp_address('hinjewadi_phase3','pune','India'));
+
+select * from Person;
+
+select p.address.city from Person p where pid=1;
+
+update Person set address =emp_Address('Bavdhan','pune','India')
+where pid=1;
+--------------------------
+or by using constructor 
+----------------------------------
+declare 
+add emp_Address;
+begin
+add:=emp_Address('aaa','bbb','ccc');
+update Person set address =add where pid=1;
+end;
+
+----------------------using function----------------------------------
+
+create or replace type emp_Address as object
+(street varchar2(20),
+city varchar2(20),
+country varchar2(20),
+member function getCity return varchar2);
+
+create type body emp_Address as
+member function getCity return varchar2 is
+begin
+return city;
+end;
+end;
+
+select p.address.getCity() from person p where pid=1;
+
+---------------------------varray------------------
+
+create type phone_no as varray(5) of number;
+
+create table emp_v(empid number,ename varchar2(20),phone phone_no);
+
+insert into emp_v values(1,'AAA',phone_no(232,45435,5645));
+
+insert into emp_v values(2,'BBB',phone_no(1132,1234545,1145));
+
+select * from emp_v where empid=1;
+
+declare
+t_phone phone_no;
+begin
+select phone into t_phone from emp_v where empid=1;
+for x in 1..t_phone.count
+loop
+dbms_output.put_line('phone no val='||t_phone(x));
+end loop;
+dbms_output.put_line('first phone no val='||t_phone(t_phone.first));
+dbms_output.put_line('first phone no val='||t_phone(t_phone.last));
+dbms_output.put_line('first phone no val='||t_phone(t_phone.next(t_phone.first)));
+end;
+
+
+
+
+
+example
+---------------------------------------------------
+create type abc1 as object(data1 varchar2(20),data2 varchar2(20));
+
+create type phone_no1 as varray(5) of abc1;
+
+create table emp_v1(empid number,ename varchar2(20),phone phone_no1);
+
+insert into emp_v1 values(1,'aaa',phone_no1(abc1('aaa','bbb'),abc1('xyz','xyzxt')));
+
+insert into emp_v1 values(2,'bbb',phone_no1(abc1('sesdk','dsd'),abc1('dsd','hhg')));
+
+select * from emp_v1 where empid=1;
+
+declare
+t_phone phone_no1;
+cursor c1 is select * from emp_v1;
+begin
+for y in c1
+loop
+select phone into t_phone from emp_v1 where empid=y.empid;
+for x in 1..t_phone.count
+loop
+dbms_output.put_line('phone no data1='||t_phone(x).data1||' data2='||t_phone(x).data2);
+end loop;
+end loop;
+end;
+
+
+-----------------------------------------------------------------------------------------------
+
+
+
+------------------------------procedure for insert and update-------------------------
+
+
+create or replace procedure forInsert(empno number,v_phone phone_no1) as
+begin
+insert into emp_v1 values (3,'zzz',v_phone);
+end;
+
+create or replace procedure forUpdate(p_empno number,v_phone phone_no1) as
+begin
+update emp_v1 set phone=v_phone where empid=p_empno;
+end;
+
+declare
+t_phone phone_no1;
+begin
+t_phone := phone_no1(abc1('qqq','qqqq'),abc1('www','wwww'));
+forUpdate(1,t_phone);
+end;
+
+
+
+
+
+
+
+
+
